@@ -8,60 +8,87 @@
 </head>
 
 <body>
-    <script src="../../libs/three.min.js"></script>
-    <script src="../../libs/FBXLoader.js"></script>
-    <script src="../../libs/OrbitControls.js"></script>
-    <script src="../../libs/Inflate.js"></script>
+    <!-- <script src="../../node_modules/three/build/three.min.js"></script>
+    <script src="../../node_modules/three/examples/jsm/loaders/FBXLoader.js"></script>
+    <script src="../../node_modules/three/examples/jsm/controls/OrbitControls.js"></script>
+    <script src="../../libs/Inflate.js"></script> -->
 </body>
 
 </html>
 
-<script>
+<script type="module">
+
+    import * as THREE from "../../node_modules/three/build/three.module.js";
+    import { FBXLoader } from "../../node_modules/three/examples/jsm/loaders/FBXLoader.js";
+    import { OrbitControls } from "../../node_modules/three/examples/jsm/controls/OrbitControls.js";
+    import { DRACOLoader } from "../../node_modules/three/examples/jsm/loaders/DRACOLoader.js";
+    import { GLTFLoader } from "../../node_modules/three/examples/jsm/loaders/GLTFLoader.js";
+
     let scene, camera, renderer;
+    let ADD = 0.1;
 
     let init = function () {
-        var mixer;
         scene = new THREE.Scene();
-        //  scene.background = new THREE.Color(0xababab);
+        scene.background = new THREE.Color(0xababab);
 
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-        camera.position.set(3, 50, 5);
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.set(1, 2, 35);
 
 
         var dirLight = new THREE.DirectionalLight(0xffffff, 1);
         dirLight.position.set(5, 2, 8);
         scene.add(dirLight);
 
-        var texture = new THREE.TextureLoader().load("textures/Setup_Sofa_mat_BaseColor.jpg");
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(4, 4);
+        // var texture = new THREE.TextureLoader().load("textures/Setup_Sofa_mat_BaseColor.jpg");
+        // texture.wrapS = THREE.RepeatWrapping;
+        // texture.wrapT = THREE.RepeatWrapping;
+        // texture.repeat.set(4, 4);
+
+        var spot = new THREE.SpotLight(0xffffff, 1);
+        spot.position.set(0, 10, 15);
+        scene.add(spot);
 
         renderer = new THREE.WebGLRenderer();
         renderer.gammaOutput = true;
         renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        var controls = new OrbitControls(camera, renderer.domElement);
         controls.target.set(0, 0.5, 0);
         controls.update();
         controls.enablePan = true;
         controls.enableDamping = true;
         document.body.appendChild(renderer.domElement);
 
+        var d = new THREE.Object3D();
+        var loader = new GLTFLoader();
+        var dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('/examples/js/libs/draco/');
+        loader.setDRACOLoader(dracoLoader);
 
-        var loader = new THREE.FBXLoader();
-        loader.load('Dog_House.fbx', function (object) {
-            scene.add(object);
+        loader.load("market.glb", function (object) {
+            d = object.scene;
+            scene.add(d)
         });
+
+
+        // var loader = new FBXLoader();
+        // loader.load('Dog_House.fbx', function (object) {
+        //     scene.add(object);
+        // });
     };
-    let mainloop = function () {
+    let animation = function () {
+        // camera.fov += ADD;
+        // camera.updateProjectionMatrix();
+        // if (camera.fov > 100 || camera.fov < 50) {
+        //     ADD *= -1;
+        // }
         renderer.render(scene, camera);
-        requestAnimationFrame(mainloop);
+        requestAnimationFrame(animation);
     };
 
     init();
-    mainloop();
+    animation();
 
 
 
